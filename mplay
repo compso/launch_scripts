@@ -1,0 +1,16 @@
+#!/bin/bash
+
+script_name=$(basename $0);
+
+
+if [ -z $HOUDINI_VERSION ];then
+    export HOUDINI_VERSION=16.0.736
+fi
+
+export HOUDINI_ROOT=/home/software/houdini/${HOUDINI_VERSION}
+
+cd $HOUDINI_ROOT;
+
+source houdini_setup
+
+exec $script_name "$*";

@@ -1,0 +1,36 @@
+#!/bin/bash
+
+if [ -z $MAYA_VERSION ];then
+	export MAYA_VERSION=2018
+fi
+
+if [ -z $MTOA_VERSION ];then
+	export MTOA_VERSION=2.1.0
+fi
+
+if [ -z $ARNOLD_VERSION ];then
+	export ARNOLD_VERSION=5.0.2.0
+fi
+
+
+export MTOA_ROOT=/opt/solidangle/mtoa/${MTOA_VERSION}/${MAYA_VERSION}
+export MAYA_LOCATION=/usr/autodesk/maya${MAYA_VERSION}
+export ARNOLD_ROOT=/opt/solidangle/arnold/${ARNOLD_VERSION}/
+
+export BIFROST_ROOT=/usr/autodesk/bifrost
+
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$BIFROST_ROOT/maya${MAYA_VERSION}/lib:$MAYA_LOCATION/plug-ins/xgen/lib/:$MAYA_LOCATION/lib
+
+# export ARNOLD_PLUGIN_PATH=$MTOA_ROOT:$BIFROST_ROOT/1.5.0/Arnold-5.0.0.0/lib
+
+echo ===================
+echo ARNOLD_PLUGIN_PATH
+echo -e ${ARNOLD_PLUGIN_PATH//:/\\n}
+echo ===================
+echo LD_LIBRARY_PATH
+echo -e ${LD_LIBRARY_PATH//:/\\n}
+
+echo $ARNOLD_ROOT
+
+exec "${ARNOLD_ROOT}/bin/kick" -l $MTOA_ROOT/shaders -l $MTOA_ROOT/procedurals -l $BIFROST_ROOT/1.5.0/Arnold-5.0.0.0/lib "$@"
+

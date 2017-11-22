@@ -1,0 +1,38 @@
+#!/bin/bash
+
+if [ -z $MAYA_VERSION ];then
+	export MAYA_VERSION=2018
+fi
+
+if [ -z $MTOA_VERSION ];then
+	export MTOA_VERSION=2.0.2.3
+fi
+
+if [ -z $ARNOLD_VERSION ];then
+	export ARNOLD_VERSION=5.0.1.4
+fi
+
+if [ -z $GAFFER_VERSION ];then
+        export GAFFER_VERSION=0.40.0.0
+fi
+
+export SOFTWARE=/home/software
+
+export MTOA_ROOT=${SOFTWARE}/solidangle/mtoa/${MTOA_VERSION}/${MAYA_VERSION}
+export ARNOLD_ROOT=${SOFTWARE}/solidangle/arnold/${ARNOLD_VERSION}/
+export GAFFER_ROOT=${SOFTWARE}/gaffer/${GAFFER_VERSION}/
+
+export ARNOLD_PLUGIN_PATH=$MTOA_ROOT
+
+export PATH=$PATH:$ARNOLD_ROOT/bin
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$ARNOLD_ROOT/bin
+export PYTHONPATH=$PYTHONPATH:$ARNOLD_ROOT/python
+
+echo ===================
+echo ARNOLD_PLUGIN_PATH
+echo -e ${ARNOLD_PLUGIN_PATH//:/\\n}
+
+echo $GAFFER_ROOT
+
+exec "${GAFFER_ROOT}/bin/gaffer" $@
+

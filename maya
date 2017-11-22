@@ -1,0 +1,39 @@
+#!/bin/bash
+
+if [ -z $MAYA_VERSION ];then
+	export MAYA_VERSION=2018
+fi
+
+if [ -z $MTOA_VERSION ];then
+	export MTOA_VERSION=2.1.0
+fi
+
+if [ -z $ALSHADERS_VERSION ];then
+	export ALSHADERS_VERSION=2.0.0b2
+fi
+
+SA_ROOT=/opt/solidangle
+
+
+export MTOA_ROOT=${SA_ROOT}/mtoa/${MTOA_VERSION}/${MAYA_VERSION}
+
+export MAYA_MODULE_PATH=$MTOA_ROOT:$MAYA_MODULE_PATH
+
+export MANDELBULB_ROOT=/data/Dev/mandlebulb/
+export ALSHADERS_ROOT=${SA_ROOT}/alshaders/${ALSHADERS_VERSION}
+
+export MTOA_TEMPLATES_PATH=$MTOA_TEMPLATES_PATH:$ALSHADERS_ROOT/ae
+export MTOA_CUSTOM_TEMPLATE_PATH=$MTOA_CUSTOM_TEMPLATE_PATH:$ALSHADERS_ROOT/aexml
+
+export ARNOLD_PLUGIN_PATH=$MTOA_ROOT:$ALSHADERS_ROOT/bin:$MANDELBULB_ROOT
+
+echo ===================
+echo MAYA_MODULE_PATH
+echo -e ${MAYA_MODULE_PATH//:/\\n}
+
+maya_exe=/usr/autodesk/maya${MAYA_VERSION}/bin/maya
+
+echo $maya_exe "$@"
+
+exec $maya_exe "$@"
+

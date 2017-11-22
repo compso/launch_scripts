@@ -1,0 +1,12 @@
+#!/bin/bash
+
+if [ -z $NUKE_VERSION ];then
+	export NUKE_VERSION=11.0v2
+fi
+
+export NUKE_ROOT=/home/software/nuke/${NUKE_VERSION}/
+
+export NUKE_MIN_MAJ_VERSION=`echo $NUKE_VERSION | sed 's/[^0-9.]*\([0-9.]*\).*/\1/'`
+
+exec "${NUKE_ROOT}/Nuke$NUKE_MIN_MAJ_VERSION" $@
+

@@ -1,0 +1,10 @@
+#!/bin/bash
+
+if [ -z $ARNOLD_VERSION ];then
+	export ARNOLD_VERSION=5.0.1.5
+fi
+
+export ARNOLD_ROOT=/opt/solidangle/arnold/${ARNOLD_VERSION}/
+
+exec "${ARNOLD_ROOT}/bin/oslc" $@
+
