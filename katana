@@ -1,0 +1,65 @@
+#!/bin/bash
+
+if [ -z $KATANA_VERSION ];then
+	export KATANA_VERSION=2.6v4
+fi
+
+if [ -z $KTOA_VERSION ];then
+	export KTOA_VERSION=2.0.6.0
+fi
+
+if [ -z $MAYA_VERSION ];then
+	export MAYA_VERSION=2018
+fi
+
+if [ -z $MTOA_VERSION ];then
+	export MTOA_VERSION=2.1.0.1
+fi
+
+if [ -z $ALSHADERS_VERSION ];then
+	export ALSHADERS_VERSION=2.0.0b2
+fi
+
+if [ -z $ALSHADERS_LEGACY_VERSION ];then
+	export ALSHADERS_LEGACY_VERSION=1.0.0rc20
+fi
+
+
+export foundry_LICENSE=4101@china.mad.solidangle.com
+export solidangle_LICENSE=5053@localhost
+
+SW=/home/software
+SA_ROOT=$SW/solidangle
+
+export KATANA_ROOT=$SW/katana/${KATANA_VERSION}/
+
+export KATANA_MIN_MAJ_VERSION=`echo $KATANA_VERSION | sed 's/[^0-9.]*\([0-9.]*\).*/\1/'`
+
+export KTOA_ROOT=$SA_ROOT/ktoa/${KTOA_VERSION}/${KATANA_MIN_MAJ_VERSION}
+
+export KATANA_RESOURCES=$KTOA_ROOT
+
+export PATH=$KATANA_ROOT:${KTOA_ROOT}/bin:$PATH
+
+export DEFAULT_RENDERER=arnold
+
+
+#---------------------
+
+export MANDELBULB_ROOT=/data/Dev/mandlebulb/
+export ALSHADERS_ROOT=${SA_ROOT}/alshaders/${ALSHADERS_VERSION}
+export ALSHADERS_LEGACY_ROOT=${SA_ROOT}/alshaders/${ALSHADERS_LEGACY_VERSION}
+export MTOA_ROOT=${SA_ROOT}/mtoa/${MTOA_VERSION}/${MAYA_VERSION}
+export MAYA_LOCATION=/usr/autodesk/maya${MAYA_VERSION}
+export BIFROST_ROOT=/usr/autodesk/bifrost
+
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$BIFROST_ROOT/maya${MAYA_VERSION}/lib:$MAYA_LOCATION/plug-ins/xgen/lib/:$MAYA_LOCATION/lib
+
+# export ARNOLD_PLUGIN_PATH=$MTOA_ROOT/shaders:$MTOA_ROOT/procedurals:$ALSHADERS_ROOT/bin:$MANDELBULB_ROOT:$ALSHADERS_LEGACY_ROOT/bin:$BIFROST_ROOT/1.5.0/Arnold-5.0.0.0/lib
+#--------------------
+
+
+export "KATANA_TAGLINE=With KtoA and Arnold"
+
+exec "${KATANA_ROOT}/katana" $@
+

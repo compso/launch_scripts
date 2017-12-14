@@ -1,0 +1,48 @@
+#!/bin/bash
+
+
+script_name=$(basename $0);
+
+if [ -z $HOUDINI_VERSION ];then
+	export HOUDINI_VERSION=16.5.268
+fi
+
+if [ -z $HTOA_VERSION ];then
+	export HTOA_VERSION=2.2.1
+fi
+
+if [ -z $ALSHADERS_VERSION ];then
+	export ALSHADERS_VERSION=2.0.0b2
+fi
+
+if [ -z $ALSHADERS_LEGACY_VERSION ];then
+	export ALSHADERS_LEGACY_VERSION=1.0.0rc20
+fi
+
+SW_ROOT=/home/software
+SA_ROOT=/opt/solidangle
+
+export HOUDINI_ROOT=$SW_ROOT/houdini/${HOUDINI_VERSION}
+
+cd ${HOUDINI_ROOT}
+source houdini_setup
+cd - &> /dev/null
+
+export HTOA_ROOT=${SA_ROOT}/htoa/${HTOA_VERSION}/${HOUDINI_VERSION}
+
+export ALSHADERS_ROOT=${SA_ROOT}/alshaders/${ALSHADERS_VERSION}
+export ALSHADERS_LEGACY_ROOT=${SA_ROOT}/alshaders/${ALSHADERS_LEGACY_VERSION}
+
+export ARNOLD_PLUGIN_PATH=$ALSHADERS_ROOT/bin:$ALSHADERS_LEGACY_ROOT/bin
+export HOUDINI_PATH="${HOME}/houdini${HOUDINI_MAJOR_RELEASE}.${HOUDINI_MINOR_RELEASE};${HTOA_ROOT};${HFS}/houdini"
+
+houdini_exe=$HOUDINI_ROOT/bin/${script_name}
+
+export HOUDINI_EXTERNAL_HELP_BROWSER=xdg-open
+
+hserver -S china.mad.solidangle.com
+
+echo $houdini_exe $args "$@"
+
+exec $houdini_exe $args "$@"
+
