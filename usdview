@@ -1,0 +1,16 @@
+#!/bin/bash
+
+script_name=$(basename $0);
+
+if [ -z $USD_VERSION ];then
+	export USD_VERSION=0.8.3
+fi
+
+SW=/software
+
+USD_ROOT=/software/usd/${USD_VERSION}
+
+#export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$SW/openexr/2.2.0/lib:$SW/boost/1.59.0/lib:$OVDB_ROOT/lib
+
+exec "${USD_ROOT}/bin/$script_name" "$@"
+
