@@ -4,11 +4,19 @@
 script_name=$(basename $0);
 
 if [ -z $HOUDINI_VERSION ];then
-	export HOUDINI_VERSION=16.5.268
+	export HOUDINI_VERSION=16.5.496
 fi
 
 if [ -z $HTOA_VERSION ];then
-	export HTOA_VERSION=2.2.1
+	export HTOA_VERSION=3.1.1
+fi
+
+if [ -z $MAYA_VERSION ];then
+	export MAYA_VERSION=2018
+fi
+
+if [ -z $MTOA_VERSION ];then
+	export MTOA_VERSION=3.1.0.1
 fi
 
 if [ -z $ALSHADERS_VERSION ];then
@@ -30,17 +38,52 @@ cd - &> /dev/null
 
 export HTOA_ROOT=${SA_ROOT}/htoa/${HTOA_VERSION}/${HOUDINI_VERSION}
 
+export MTOA_PATH=/opt/solidangle/mtoa/${MTOA_VERSION}/${MAYA_VERSION}
+export MAYA_PATH=/usr/autodesk/maya${MAYA_VERSION}
+export XGEN_LOCATION=${MAYA_PATH}/plug-ins/xgen
+
+export BIFROST_ROOT=/usr/autodesk/bifrost
+
 export ALSHADERS_ROOT=${SA_ROOT}/alshaders/${ALSHADERS_VERSION}
 export ALSHADERS_LEGACY_ROOT=${SA_ROOT}/alshaders/${ALSHADERS_LEGACY_VERSION}
 
-export ARNOLD_PLUGIN_PATH=$ALSHADERS_ROOT/bin:$ALSHADERS_LEGACY_ROOT/bin
+# export PYTHONHOME=$HFS/python
+# export PYTHONPATH=$PYTHONPATH:$PYTHONHOME/lib/python2.7:$PYTHONHOME/lib/python2.7/site-packages:$PYTHONHOME/lib/python2.7/site-packages-ui-forced
+# export LD_LIBRARY_PATH="${MAYA_PATH}/plug-ins/xgen/lib/:${MAYA_PATH}/lib:&"
+
+ARNOLD_PLUGIN_PATH="$ARNOLD_PLUGIN_PATH"
+# ARNOLD_PLUGIN_PATH+=":$ALSHADERS_ROOT/bin"
+ARNOLD_PLUGIN_PATH+=":$ALSHADERS_LEGACY_ROOT/bin:"
+ARNOLD_PLUGIN_PATH+=":$MTOA_PATH/procedurals:"
+ARNOLD_PLUGIN_PATH+=":$MTOA_PATH/shaders"
+export ARNOLD_PLUGIN_PATH
 export HOUDINI_PATH="${HOME}/houdini${HOUDINI_MAJOR_RELEASE}.${HOUDINI_MINOR_RELEASE};${HTOA_ROOT};${HFS}/houdini"
+
+if [[ -n $XGEN_HTOA ]];then
+	export LD_PRELOAD="${MAYA_PATH}/lib/libclew.so:${MAYA_PATH}/lib/libtbb.so.2:${MAYA_PATH}/lib/libtbbmalloc.so.2:${MAYA_PATH}/lib/libPtex.so:\
+${XGEN_LOCATION}/lib/libAdskSubEngine.so:${XGEN_LOCATION}/lib/libAdskFabricMath.so:${XGEN_LOCATION}/lib/libAdskFabricGeom.so:${XGEN_LOCATION}/lib/libAdskCaf.so:\
+${XGEN_LOCATION}/lib/libAdskPartio.so:${XGEN_LOCATION}/lib/libAdskGLee.so:${XGEN_LOCATION}/lib/libAdskXGen.so:${XGEN_LOCATION}/lib/libAdskSeExpr.so"
+
+	echo LD_PRELOAD
+	echo -e ${LD_PRELOAD//:/\\n}
+fi
+
+echo ARNOLD_PLUGIN_PATH
+echo -e ${ARNOLD_PLUGIN_PATH//:/\\n}
+
+echo LD_LIBRARY_PATH
+echo -e ${LD_LIBRARY_PATH//:/\\n}
+
+echo PYTHONPATH
+echo -e ${PYTHONPATH//:/\\n}
+echo HOUDINI_PATH
+echo -e ${HOUDINI_PATH//:/\\n}
 
 houdini_exe=$HOUDINI_ROOT/bin/${script_name}
 
 export HOUDINI_EXTERNAL_HELP_BROWSER=xdg-open
 
-hserver -S china.mad.solidangle.com
+# hserver -S 10.150.74.221
 
 echo $houdini_exe $args "$@"
 
