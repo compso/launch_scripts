@@ -1,0 +1,16 @@
+#!/bin/bash
+
+script_name=$(basename $0);
+
+if [ -z $ALEMBIC_VERSION ];then
+	export ALEMBIC_VERSION=1.7.4
+fi
+
+SW=/software
+
+ALEMBIC_ROOT=/software/alembic/${ALEMBIC_VERSION}
+
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$ALEMBIC_ROOT/lib
+
+exec "${ALEMBIC_ROOT}/bin/$script_name" "$@"
+
