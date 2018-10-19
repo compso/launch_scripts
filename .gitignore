@@ -1,5 +1,8 @@
 *~
 *.bak
+*.py
+*.pyc
+*.sh
 download_*
 list_*
 credentials
