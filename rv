@@ -1,0 +1,12 @@
+#!/bin/bash
+
+script_name=$(basename $0);
+
+if [ -z $RV_VERSION ];then
+	export RV_VERSION=7.2.1
+fi
+
+RV_ROOT=/software/rv/$RV_VERSION
+
+exec "${RV_ROOT}/bin/rv" "$@"
+
