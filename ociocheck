@@ -1,0 +1,16 @@
+#!/bin/bash
+
+
+script_name=$(basename $0);
+
+if [ -z $OCIO_VERSION ];then
+	export OCIO_VERSION=1.0.9
+fi
+
+export SOFTWARE=/home/software
+
+export OCIO_ROOT=$SOFTWARE/ocio/${OCIO_VERSION}
+
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$OCIO_ROOT/lib
+exec "${OCIO_ROOT}/bin/$script_name" "$@"
+
