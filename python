@@ -1,0 +1,53 @@
+#!/bin/bash
+
+script_name=$(basename $0);
+
+source envs.sh
+
+PYTHON_ROOT="${SW}/python/${PYTHON_VERSION}"
+
+# export MTOA_ROOT=/opt/solidangle/mtoa/${MTOA_VERSION}/${MAYA_VERSION}
+# export MAYA_LOCATION=/usr/autodesk/maya${MAYA_VERSION}
+export ARNOLD_ROOT=$SA_ROOT/arnold/${ARNOLD_VERSION}/
+
+export ARNOLD_PYTHON="${ARNOLD_ROOT}/python"
+
+export BIFROST_ROOT=/usr/autodesk/bifrost
+
+export BOOST_ROOT=$SW/boost/1.59.0
+export OPENEXR_ROOT=$SW/openexr/2.2.0
+
+LD_LIBRARY_PATH="/usr/lib64"
+LD_LIBRARY_PATH+=":${BOOST_ROOT}/lib"
+LD_LIBRARY_PATH+=":${OPENEXR_ROOT}/lib"
+LD_LIBRARY_PATH+=":${ARNOLD_ROOT}/bin"
+export LD_LIBRARY_PATH
+
+ALEMBIC_PATH=$SW/alembic/$ALEMBIC_VERSION
+ALEMBIC_PYTHON=$ALEMBIC_PATH/lib/python2.7/site-packages
+
+USD_PATH="${SW}/usd/${USD_VERSION}"
+USD_PYTHON="${USD_PATH}/lib/python"
+
+PYTHONPATH="${ARNOLD_PYTHON}"
+PYTHONPATH+=":${ALEMBIC_PYTHON}"
+PYTHONPATH+=":${USD_PYTHON}"
+PYTHONPATH+=":${OPENEXR_ROOT}/lib64/python2.7/site-packages/"
+export PYTHONPATH
+# export solidangle_LICENSE=5053@localhost
+# export ADSKFLEX_LICENSE_FILE=@localhost
+
+
+# echo ===================
+# echo ARNOLD_PLUGIN_PATH
+# echo -e ${ARNOLD_PLUGIN_PATH//:/\\n}
+# echo ===================
+# echo PYTHONPATH
+# echo -e ${PYTHONPATH//:/\\n}
+# echo ===================
+
+CMD="$PYTHON_ROOT/bin/$script_name"
+
+# echo $CMD "$@"
+
+exec $CMD "$@"
