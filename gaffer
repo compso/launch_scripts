@@ -5,15 +5,15 @@ if [ -z $MAYA_VERSION ];then
 fi
 
 if [ -z $MTOA_VERSION ];then
-	export MTOA_VERSION=2.0.2.3
+	export MTOA_VERSION=3.1.0.1
 fi
 
 if [ -z $ARNOLD_VERSION ];then
-	export ARNOLD_VERSION=5.0.1.4
+	export ARNOLD_VERSION=5.2.0.1
 fi
 
 if [ -z $GAFFER_VERSION ];then
-        export GAFFER_VERSION=0.40.0.0
+        export GAFFER_VERSION=0.50.0.0
 fi
 
 export SOFTWARE=/home/software
@@ -22,7 +22,7 @@ export MTOA_ROOT=${SOFTWARE}/solidangle/mtoa/${MTOA_VERSION}/${MAYA_VERSION}
 export ARNOLD_ROOT=${SOFTWARE}/solidangle/arnold/${ARNOLD_VERSION}/
 export GAFFER_ROOT=${SOFTWARE}/gaffer/${GAFFER_VERSION}/
 
-export ARNOLD_PLUGIN_PATH=$MTOA_ROOT
+export ARNOLD_PLUGIN_PATH=$MTOA_ROOT/shaders
 
 export PATH=$PATH:$ARNOLD_ROOT/bin
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$ARNOLD_ROOT/bin
