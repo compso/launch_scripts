@@ -1,54 +1,63 @@
-#!/bin/bash
+#!/usr/bin/python
 
+import os
+import sys
+import subprocess
 
-script_name=$(basename $0);
+from envs import *
 
-if [ -z $MAYA_VERSION ];then
-	export MAYA_VERSION=2018
-fi
+envs['script_name'] = __file__.split(os.sep)[-1]
+envs['script_name'] = remove_py(envs['script_name'])
+envs['MAYA_MODULE_PATH'] = getEnv('MAYA_MODULE_PATH', '')
+for path in ('MTOA_ROOT',
+             'YETI_ROOT',
+             'RMAN_ROOT',
+             'ORNATRIX_ROOT',
+             # 'GOLAEM_ROOT',  # commented out for compatiblity reasons
+             'WALTER_MAYA_ROOT'):
+    envs['MAYA_MODULE_PATH'] += ":{}".format(envs[path])
 
-if [ -z $MTOA_VERSION ];then
-	export MTOA_VERSION=2.1.0.1
-fi
+MTOA_VERSION_SPLIT = None
+if envs['MTOA_VERSION'][0].isdigit():
+    MTOA_VERSION_SPLIT = [int(i) for i in envs['MTOA_VERSION'].split('.')[:3]]
 
-if [ -z $ALSHADERS_VERSION ];then
-	export ALSHADERS_VERSION=2.0.0b2
-fi
+DEV = envs['MTOA_VERSION'] == 'dev'
 
-if [ -z $ALSHADERS_LEGACY_VERSION ];then
-	export ALSHADERS_LEGACY_VERSION=1.0.0rc20
-fi
+envs['ARNOLD_PLUGIN_PATH'] = getEnv('ARNOLD_PLUGIN_PATH', '')
 
+if MTOA_VERSION_SPLIT and not (MTOA_VERSION_SPLIT[0] >= 3
+                               and MTOA_VERSION_SPLIT[1] >= 0):
+    envs['ARNOLD_PLUGIN_PATH'] += ":{ALSHADERS_ROOT}/bin"
+envs['ARNOLD_PLUGIN_PATH'] += ":{ALSHADERS_LEGACY_ROOT}/bin"
+envs['ARNOLD_PLUGIN_PATH'] += ":{YETI_ROOT}/bin/pgYetiArnold.so"
+envs['ARNOLD_PLUGIN_PATH'] += ":{JSNOISE_ROOT}/bin"
+envs['ARNOLD_PLUGIN_PATH'] += ":{WALTER_ROOT}/arnold"
 
-SA_ROOT=/opt/solidangle
+envs['MTOA_TEMPLATES_PATH'] = getEnv("MTOA_TEMPLATES_PATH", '')
+envs['MTOA_TEMPLATES_PATH'] += ":{ALSHADERS_ROOT}/ae"
+envs['MTOA_TEMPLATES_PATH'] += ":{ALSHADERS_LEGACY_ROOT}/ae"
+envs['MTOA_TEMPLATES_PATH'] += ":{JSNOISE_ROOT}/ae"
 
-export MTOA_ROOT=${SA_ROOT}/mtoa/${MTOA_VERSION}/${MAYA_VERSION}
+envs['MAYA_CUSTOM_TEMPLATE_PATH'] = getEnv('MAYA_CUSTOM_TEMPLATE_PATH', '')
+envs['MAYA_CUSTOM_TEMPLATE_PATH'] += ":{ALSHADERS_ROOT}/aexml"
+envs['MAYA_CUSTOM_TEMPLATE_PATH'] += ":{ALSHADERS_LEGACY_ROOT}/aexml"
 
-export MAYA_MODULE_PATH=$MTOA_ROOT:$MAYA_MODULE_PATH
+envs['PYTHONHOME'] = envs['MAYA_ROOT']  # for gdb to work
 
-export MANDELBULB_ROOT=/data/Dev/mandlebulb/
-export ALSHADERS_ROOT=${SA_ROOT}/alshaders/${ALSHADERS_VERSION}
-export ALSHADERS_LEGACY_ROOT=${SA_ROOT}/alshaders/${ALSHADERS_LEGACY_VERSION}
+for e, v in envs.items():
+    os.environ[e] = v.format(**envs)
 
-export MTOA_TEMPLATES_PATH=$MTOA_TEMPLATES_PATH:$ALSHADERS_ROOT/ae
-export MTOA_CUSTOM_TEMPLATE_PATH=$MTOA_CUSTOM_TEMPLATE_PATH:$ALSHADERS_ROOT/aexml
-export MAYA_RENDER_DESC_PATH=$MAYA_RENDER_DESC_PATH:$MTOA_ROOT
+s = '*'*30
 
-export ARNOLD_PLUGIN_PATH=$ARNOLD_PLUGIN_PATH:$MTOA_ROOT:$ALSHADERS_ROOT/bin:$ALSHADERS_LEGACY_ROOT/bin
+print '{}\nMAYA_MODULE_PATH'.format(s)
+print '\n'.join(envs['MAYA_MODULE_PATH'].format(**envs).split(':'))
+print '{}\nARNOLD_PLUGIN_PATH'.format(s)
+print '\n'.join(envs['ARNOLD_PLUGIN_PATH'].format(**envs).split(':'))
+print '{}\n'.format(s)
 
-echo ===================
-echo MAYA_MODULE_PATH
-echo -e ${MAYA_MODULE_PATH//:/\\n}
-
-
-if [ $script_name == "mayabatch" ];then
-	script_name="maya"
-	args="-batch"
-fi
-
-maya_exe=/usr/autodesk/maya${MAYA_VERSION}/bin/${script_name}
-
-echo $maya_exe $args "$@"
-
-exec $maya_exe $args "$@"
-
+args = sys.argv[1:]
+maya_exe = "/usr/autodesk/maya{MAYA_VERSION}/bin/{script_name}".format(**envs)
+print '\nRUNNING command: "{}"'.format(' '.join([maya_exe] + args))
+exitstatus = subprocess.call([maya_exe] + args)
+print "\nMaya exited with status: {}".format(exitstatus)
+sys.exit(exitstatus)
