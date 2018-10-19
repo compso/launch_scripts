@@ -1,0 +1,16 @@
+#!/bin/bash
+
+script_name=$(basename $0);
+
+if [ -z $CLANG_VERSION ];then
+	export CLANG_VERSION=5.0.0
+fi
+
+SW=/software
+
+CLANG_ROOT=/software/clang/${CLANG_VERSION}
+
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CLANG_ROOT/lib
+
+exec "${CLANG_ROOT}/bin/$script_name" "$@"
+
