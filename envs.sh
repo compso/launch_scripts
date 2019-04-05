@@ -1,10 +1,10 @@
 
 if [ -z $HOUDINI_VERSION ];then
-    export HOUDINI_VERSION=16.5.496
+    export HOUDINI_VERSION=16.5.571
 fi
 
 if [ -z $HTOA_VERSION ];then
-    export HTOA_VERSION=3.1.1
+    export HTOA_VERSION=3.2.1
 fi
 
 if [ -z $MAYA_VERSION ];then
@@ -12,11 +12,11 @@ if [ -z $MAYA_VERSION ];then
 fi
 
 if [ -z $MTOA_VERSION ];then
-    export MTOA_VERSION=3.1.0.1
+    export MTOA_VERSION=3.1.2.1
 fi
 
 if [ -z $ARNOLD_VERSION ];then
-    export ARNOLD_VERSION=5.2.0.1
+    export ARNOLD_VERSION=5.2.2.1
 fi
 
 if [ -z $ALSHADERS_VERSION ];then

@@ -1,0 +1,16 @@
+#!/bin/bash
+
+script_name=$(basename $0);
+
+if [ -z $BLENDER_VERSION ];then
+        export BLENDER_VERSION=2.80b
+fi
+
+export SOFTWARE=/software
+
+export BLENDER_ROOT=${SOFTWARE}/blender/${BLENDER_VERSION}/
+
+echo $BLENDER_ROOT
+
+${BLENDER_ROOT}/$script_name $@
+

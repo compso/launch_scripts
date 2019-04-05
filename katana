@@ -5,7 +5,7 @@ if [ -z $KATANA_VERSION ];then
 fi
 
 if [ -z $KTOA_VERSION ];then
-	export KTOA_VERSION=2.2.0.1
+	export KTOA_VERSION=2.3.0.1
 fi
 
 if [ -z $MAYA_VERSION ];then
@@ -13,7 +13,7 @@ if [ -z $MAYA_VERSION ];then
 fi
 
 if [ -z $MTOA_VERSION ];then
-	export MTOA_VERSION=3.0.1
+	export MTOA_VERSION=3.2.0.1
 fi
 
 if [ -z $ALSHADERS_VERSION ];then
@@ -28,11 +28,19 @@ if [ -z $YETI_VERSION ];then
     export YETI_VERSION=2.2.6
 fi
 
-export foundry_LICENSE=4101@china.mad.solidangle.com
+if [ -z $GOLAEM_VERSION ];then
+    export GOLAEM_VERSION=6.4
+fi
+
+export foundry_LICENSE=4101@license.arnold.autodesk.com
 export solidangle_LICENSE=5053@localhost
 
 SW=/home/software
 SA_ROOT=$SW/solidangle
+
+# Set Environment Variables for Golaem
+export GOLAEM_INSTALL_PATH=$SW/golaem/${GOLAEM_VERSION}/${MAYA_VERSION}
+export KATANA_POST_PYTHONPATH=${GOLAEM_INSTALL_PATH}/procedurals/katana/Python
 
 export KATANA_ROOT=$SW/katana/${KATANA_VERSION}/
 
@@ -40,7 +48,9 @@ export KATANA_MIN_MAJ_VERSION=`echo $KATANA_VERSION | sed 's/[^0-9.]*\([0-9.]*\)
 
 export KTOA_ROOT=$SA_ROOT/ktoa/${KTOA_VERSION}/${KATANA_MIN_MAJ_VERSION}
 
-export KATANA_RESOURCES=$KTOA_ROOT
+KATANA_RESOURCES=$KTOA_ROOT
+# KATANA_RESOURCES+=":${GOLAEM_INSTALL_PATH}/procedurals/katana"
+export KATANA_RESOURCES
 
 export peregrinel_LICENSE=5053@china
 export YETI_ROOT=${SW}/yeti/${YETI_VERSION}/${MAYA_VERSION}
@@ -57,9 +67,13 @@ export ALSHADERS_ROOT=${SA_ROOT}/alshaders/${ALSHADERS_VERSION}
 export ALSHADERS_LEGACY_ROOT=${SA_ROOT}/alshaders/${ALSHADERS_LEGACY_VERSION}
 export MTOA_PATH=${SA_ROOT}/mtoa/${MTOA_VERSION}/${MAYA_VERSION}
 export MAYA_PATH=/usr/autodesk/maya${MAYA_VERSION}
+export XGEN_LOCATION=${MAYA_PATH}/plug-ins/xgen
 export BIFROST_ROOT=/usr/autodesk/bifrost
 
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$BIFROST_ROOT/maya${MAYA_VERSION}/lib:$MAYA_PATH/plug-ins/xgen/lib/:$MAYA_PATH/lib
+LD_LIBRARY_PATH=$LD_LIBRARY_PATH
+# LD_LIBRARY_PATH+=:${GOLAEM_INSTALL_PATH}/lib
+LD_LIBRARY_PATH+=":$BIFROST_ROOT/maya${MAYA_VERSION}/lib:$XGEN_LOCATION/lib/:$MAYA_PATH/lib"
+export LD_LIBRARY_PATH
 
 ARNOLD_PLUGIN_PATH="$ARNOLD_PLUGIN_PATH"
 ARNOLD_PLUGIN_PATH+=":$MANDELBULB_ROOT"
@@ -68,6 +82,7 @@ ARNOLD_PLUGIN_PATH+=":$ALSHADERS_LEGACY_ROOT/bin"
 ARNOLD_PLUGIN_PATH+=":$YETI_ROOT/bin/pgYetiArnold.so"
 ARNOLD_PLUGIN_PATH+=":$MTOA_PATH/shaders"
 ARNOLD_PLUGIN_PATH+=":$MTOA_PATH/procedurals"
+# ARNOLD_PLUGIN_PATH+=":${GOLAEM_INSTALL_PATH}/procedurals:${GOLAEM_INSTALL_PATH}/shaders"
 export ARNOLD_PLUGIN_PATH
 #--------------------
 

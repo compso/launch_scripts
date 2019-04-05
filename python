@@ -6,8 +6,6 @@ source envs.sh
 
 PYTHON_ROOT="${SW}/python/${PYTHON_VERSION}"
 
-# export MTOA_ROOT=/opt/solidangle/mtoa/${MTOA_VERSION}/${MAYA_VERSION}
-# export MAYA_LOCATION=/usr/autodesk/maya${MAYA_VERSION}
 export ARNOLD_ROOT=$SA_ROOT/arnold/${ARNOLD_VERSION}/
 
 export ARNOLD_PYTHON="${ARNOLD_ROOT}/python"
@@ -34,20 +32,7 @@ PYTHONPATH+=":${ALEMBIC_PYTHON}"
 PYTHONPATH+=":${USD_PYTHON}"
 PYTHONPATH+=":${OPENEXR_ROOT}/lib64/python2.7/site-packages/"
 export PYTHONPATH
-# export solidangle_LICENSE=5053@localhost
-# export ADSKFLEX_LICENSE_FILE=@localhost
-
-
-# echo ===================
-# echo ARNOLD_PLUGIN_PATH
-# echo -e ${ARNOLD_PLUGIN_PATH//:/\\n}
-# echo ===================
-# echo PYTHONPATH
-# echo -e ${PYTHONPATH//:/\\n}
-# echo ===================
 
 CMD="$PYTHON_ROOT/bin/$script_name"
-
-# echo $CMD "$@"
 
 exec $CMD "$@"

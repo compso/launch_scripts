@@ -13,8 +13,10 @@ for path in ('MTOA_ROOT',
              'YETI_ROOT',
              'RMAN_ROOT',
              'ORNATRIX_ROOT',
-             # 'GOLAEM_ROOT',  # commented out for compatiblity reasons
-             'WALTER_MAYA_ROOT'):
+             'IRAY_ROOT',
+             'GOLAEM_ROOT',  # commented out for compatiblity reasons
+             'WALTER_MAYA_ROOT'
+             ):
     envs['MAYA_MODULE_PATH'] += ":{}".format(envs[path])
 
 MTOA_VERSION_SPLIT = None
@@ -23,7 +25,12 @@ if envs['MTOA_VERSION'][0].isdigit():
 
 DEV = envs['MTOA_VERSION'] == 'dev'
 
+envs['PYTHONPATH'] = getEnv('PYTHONPATH', '')
 envs['ARNOLD_PLUGIN_PATH'] = getEnv('ARNOLD_PLUGIN_PATH', '')
+envs['MAYA_PLUG_IN_PATH'] = getEnv('MAYA_PLUG_IN_PATH', '')
+envs['MAYA_SCRIPT_PATH'] = getEnv('MAYA_SCRIPT_PATH', '')
+envs['XBMLANGPATH'] = getEnv('XBMLANGPATH', '')
+envs['PYTHONPATH'] += ":{MTOA_ROOT}/scripts"
 
 if MTOA_VERSION_SPLIT and not (MTOA_VERSION_SPLIT[0] >= 3
                                and MTOA_VERSION_SPLIT[1] >= 0):
@@ -31,7 +38,7 @@ if MTOA_VERSION_SPLIT and not (MTOA_VERSION_SPLIT[0] >= 3
 envs['ARNOLD_PLUGIN_PATH'] += ":{ALSHADERS_LEGACY_ROOT}/bin"
 envs['ARNOLD_PLUGIN_PATH'] += ":{YETI_ROOT}/bin/pgYetiArnold.so"
 envs['ARNOLD_PLUGIN_PATH'] += ":{JSNOISE_ROOT}/bin"
-envs['ARNOLD_PLUGIN_PATH'] += ":{WALTER_ROOT}/arnold"
+# envs['ARNOLD_PLUGIN_PATH'] += ":{WALTER_ROOT}/arnold"
 
 envs['MTOA_TEMPLATES_PATH'] = getEnv("MTOA_TEMPLATES_PATH", '')
 envs['MTOA_TEMPLATES_PATH'] += ":{ALSHADERS_ROOT}/ae"
@@ -42,6 +49,12 @@ envs['MAYA_CUSTOM_TEMPLATE_PATH'] = getEnv('MAYA_CUSTOM_TEMPLATE_PATH', '')
 envs['MAYA_CUSTOM_TEMPLATE_PATH'] += ":{ALSHADERS_ROOT}/aexml"
 envs['MAYA_CUSTOM_TEMPLATE_PATH'] += ":{ALSHADERS_LEGACY_ROOT}/aexml"
 
+# USD
+envs['MAYA_PLUG_IN_PATH'] += ":{USD_ROOT}/third_party/maya/plugin"
+envs['MAYA_SCRIPT_PATH'] += ":{USD_ROOT}/third_party/maya/lib/usd/usdMaya/resources/"
+envs['PYTHONPATH'] += ":{USD_ROOT}/lib/python/"
+envs['XBMLANGPATH'] += ":{USD_ROOT}/third_party/maya/lib/usd/usdMaya/resources/"
+
 envs['PYTHONHOME'] = envs['MAYA_ROOT']  # for gdb to work
 
 for e, v in envs.items():
@@ -51,12 +64,16 @@ s = '*'*30
 
 print '{}\nMAYA_MODULE_PATH'.format(s)
 print '\n'.join(envs['MAYA_MODULE_PATH'].format(**envs).split(':'))
+print '{}\nMTOA_TEMPLATES_PATH'.format(s)
+print '\n'.join(envs['MTOA_TEMPLATES_PATH'].format(**envs).split(':'))
+print '{}\nMAYA_PLUG_IN_PATH'.format(s)
+print '\n'.join(envs['MAYA_PLUG_IN_PATH'].format(**envs).split(':'))
 print '{}\nARNOLD_PLUGIN_PATH'.format(s)
 print '\n'.join(envs['ARNOLD_PLUGIN_PATH'].format(**envs).split(':'))
 print '{}\n'.format(s)
 
 args = sys.argv[1:]
-maya_exe = "/usr/autodesk/maya{MAYA_VERSION}/bin/{script_name}".format(**envs)
+maya_exe = "{MAYA_ROOT}/bin/{script_name}".format(**envs)
 print '\nRUNNING command: "{}"'.format(' '.join([maya_exe] + args))
 exitstatus = subprocess.call([maya_exe] + args)
 print "\nMaya exited with status: {}".format(exitstatus)

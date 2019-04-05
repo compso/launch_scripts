@@ -4,11 +4,11 @@
 script_name=$(basename $0);
 
 if [ -z $HOUDINI_VERSION ];then
-	export HOUDINI_VERSION=16.5.496
+	export HOUDINI_VERSION=17.0.506
 fi
 
 if [ -z $HTOA_VERSION ];then
-	export HTOA_VERSION=3.1.1
+	export HTOA_VERSION=4.0.0
 fi
 
 if [ -z $MAYA_VERSION ];then
@@ -16,7 +16,7 @@ if [ -z $MAYA_VERSION ];then
 fi
 
 if [ -z $MTOA_VERSION ];then
-	export MTOA_VERSION=3.1.0.1
+	export MTOA_VERSION=3.2.0
 fi
 
 if [ -z $ALSHADERS_VERSION ];then
@@ -57,7 +57,7 @@ ARNOLD_PLUGIN_PATH+=":$ALSHADERS_LEGACY_ROOT/bin:"
 ARNOLD_PLUGIN_PATH+=":$MTOA_PATH/procedurals:"
 ARNOLD_PLUGIN_PATH+=":$MTOA_PATH/shaders"
 export ARNOLD_PLUGIN_PATH
-export HOUDINI_PATH="${HOME}/houdini${HOUDINI_MAJOR_RELEASE}.${HOUDINI_MINOR_RELEASE};${HTOA_ROOT};${HFS}/houdini"
+export HOUDINI_PATH="${HOME}/houdini${HOUDINI_MAJOR_RELEASE}.${HOUDINI_MINOR_RELEASE};${HTOA_ROOT};&"
 
 if [[ -n $XGEN_HTOA ]];then
 	export LD_PRELOAD="${MAYA_PATH}/lib/libclew.so:${MAYA_PATH}/lib/libtbb.so.2:${MAYA_PATH}/lib/libtbbmalloc.so.2:${MAYA_PATH}/lib/libPtex.so:\
@@ -83,7 +83,7 @@ houdini_exe=$HOUDINI_ROOT/bin/${script_name}
 
 export HOUDINI_EXTERNAL_HELP_BROWSER=xdg-open
 
-# hserver -S 10.150.74.221
+# hserver -S 10.150.68.182
 
 echo $houdini_exe $args "$@"
 

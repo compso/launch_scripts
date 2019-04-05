@@ -7,7 +7,11 @@ if [ -z $MAYA_VERSION ];then
 fi
 
 if [ -z $MTOA_VERSION ];then
-	export MTOA_VERSION=3.1.0.1
+	export MTOA_VERSION=3.1.2.1
+fi
+
+if [ -z $BIFROST_VERSION ];then
+    export BIFROST_VERSION=1.9.0.0
 fi
 
 if [ -z $C4DTOA_VERSION ];then
@@ -15,7 +19,7 @@ if [ -z $C4DTOA_VERSION ];then
 fi
 
 if [ -z $ARNOLD_VERSION ];then
-	export ARNOLD_VERSION=5.2.0.1
+	export ARNOLD_VERSION=5.3.0.0
 fi
 
 if [ -z $ALSHADERS_VERSION ];then
@@ -43,7 +47,7 @@ if [ -z $YETI_VERSION ];then
 fi
 
 if [ -z $GOLAEM_VERSION ];then
-    export GOLAEM_VERSION=6.3
+    export GOLAEM_VERSION=6.4
 fi
 
 export SW=/software
@@ -61,6 +65,7 @@ export YETI_ROOT=${SW}/yeti/${YETI_VERSION}/${MAYA_VERSION}
 export BB_ALEMBIC_ROOT=${SW}/bb_alembic/${BBALEMBIC_VERSION}
 
 export BIFROST_ROOT=/usr/autodesk/bifrost
+export BIFROST_LIB_ROOT=${BIFROST_ROOT}/maya${MAYA_VERSION}/${BIFROST_VERSION}
 
 export GOLAEM_ROOT=/software/golaem/${GOLAEM_VERSION}/${MAYA_VERSION}
 
@@ -68,6 +73,7 @@ export ALSHADERS_ROOT=${SA_ROOT}/alshaders/${ALSHADERS_VERSION}
 export ALSHADERS_LEGACY_ROOT=${SA_ROOT}/alshaders/${ALSHADERS_LEGACY_VERSION}
 
 export JSNOISE_ROOT=${SA_ROOT}/jsnoise/${JSNOISE_VERSION}
+export MANDELBULB_ROOT=/data/Dev/mandlebulb/
 
 export BOOST_ROOT=$SW/boost/1.59.0
 export ILMBASE_ROOT=$SW/openexr/2.2.0
@@ -75,7 +81,7 @@ export OPENEXR_ROOT=$SW/openexr/2.2.0
 export ALEMBIC_ROOT=$SW/alembic/$ALEMBIC_VERSION
 
 LD_LIBRARY_PATH=$LD_LIBRARY_PATH
-LD_LIBRARY_PATH+=:$BIFROST_ROOT/maya${MAYA_VERSION}/lib
+LD_LIBRARY_PATH+=:$BIFROST_LIB_ROOT/bifrost/lib
 LD_LIBRARY_PATH+=:$MAYA_LOCATION/plug-ins/xgen/lib/
 LD_LIBRARY_PATH+=:$MAYA_LOCATION/lib
 LD_LIBRARY_PATH+=:$BOOST_ROOT/lib
@@ -88,12 +94,13 @@ export LD_LIBRARY_PATH
 
 # export ARNOLD_PLUGIN_PATH=$MTOA_ROOT:$BIFROST_ROOT/1.5.0/Arnold-5.0.0.0/lib
 ARNOLD_PLUGIN_PATH=$ARNOLD_PLUGIN_PATH:$MTOA_ROOT/shaders
+ARNOLD_PLUGIN_PATH+=:$MANDELBULB_ROOT
 ARNOLD_PLUGIN_PATH+=:$MTOA_ROOT/procedurals
 ARNOLD_PLUGIN_PATH+=:$MTOA_ROOT/plugins
 ARNOLD_PLUGIN_PATH+=:$C4DTOA_ROOT/shaders
-ARNOLD_PLUGIN_PATH+=:$BIFROST_ROOT/1.5.0/Arnold-5.0.0.0/lib
+ARNOLD_PLUGIN_PATH+=:$BIFROST_ROOT/1.5.0/Arnold-5.2.0.0/lib
 ARNOLD_PLUGIN_PATH+=:$BB_ALEMBIC_ROOT/arnold/procedurals/
-# ARNOLD_PLUGIN_PATH+=:$ALSHADERS_ROOT/bin
+ARNOLD_PLUGIN_PATH+=:$ALSHADERS_ROOT/bin
 ARNOLD_PLUGIN_PATH+=:$ALSHADERS_LEGACY_ROOT/bin
 ARNOLD_PLUGIN_PATH+=:$JSNOISE_ROOT/bin
 ARNOLD_PLUGIN_PATH+=:$GOLAEM_ROOT/procedurals/glmCrowdArnoldPlugin.so:$GOLAEM_ROOT/shaders
@@ -115,8 +122,19 @@ if [ $script_name == "kick" ];then
     args="-l $YETI_ROOT/bin/pgYetiArnold.so"
 fi
 
+STRACE="";
+if [ $script_name == "kick_strace" ];then
+    STRACE="strace -f -o $HOME/kick_strace.log";
+    script_name="kick";
+fi
+
+if [ $script_name == "kick_mtoa" ];then
+    ARNOLD_ROOT=${MTOA_ROOT}
+    script_name="kick";
+fi
+
 # exec "${ARNOLD_ROOT}/bin/$script_name" -l $MTOA_ROOT/shaders -l $MTOA_ROOT/procedurals -l $BIFROST_ROOT/1.5.0/Arnold-5.0.0.0/lib -l $BB_ALEMBIC_ROOT/arnold/procedurals -l $ALSHADERS_ROOT/bin -l $ALSHADERS_LEGACY_ROOT/bin "$@"
-eval "${ARNOLD_ROOT}/bin/$script_name" $args "$@";
+eval $STRACE "${ARNOLD_ROOT}/bin/$script_name" $args "$@";
 exitstatus="$?"
 echo "Exit status is $exitstatus"
 exit $exitstatus

@@ -9,6 +9,7 @@ fi
 SW=/software
 
 USD_ROOT=/software/usd/${USD_VERSION}
+export PYTHONPATH="${USD_ROOT}/lib/python:${PYTHONPATH}"
 
 #export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$SW/openexr/2.2.0/lib:$SW/boost/1.59.0/lib:$OVDB_ROOT/lib
 
