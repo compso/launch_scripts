@@ -3,7 +3,7 @@
 script_name=$(basename $0);
 
 if [ -z $ALEMBIC_VERSION ];then
-	export ALEMBIC_VERSION=1.7.4
+	export ALEMBIC_VERSION=1.7.11
 fi
 
 SW=/software

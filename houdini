@@ -3,20 +3,28 @@
 
 script_name=$(basename $0);
 
+
+source check_tunnel.sh
+
+
 if [ -z $HOUDINI_VERSION ];then
-	export HOUDINI_VERSION=17.0.506
+	export HOUDINI_VERSION=19.0.657
 fi
 
 if [ -z $HTOA_VERSION ];then
-	export HTOA_VERSION=4.0.0
+	export HTOA_VERSION=6.1.3.3
 fi
 
 if [ -z $MAYA_VERSION ];then
-	export MAYA_VERSION=2018
+	export MAYA_VERSION=2019
 fi
 
 if [ -z $MTOA_VERSION ];then
-	export MTOA_VERSION=3.2.0
+	export MTOA_VERSION=4.1.0
+fi
+
+if [ -z $RMAN_VERSION ];then
+	export RMAN_VERSION=24.4
 fi
 
 if [ -z $ALSHADERS_VERSION ];then
@@ -27,16 +35,20 @@ if [ -z $ALSHADERS_LEGACY_VERSION ];then
 	export ALSHADERS_LEGACY_VERSION=1.0.0rc20
 fi
 
-SW_ROOT=/home/software
+SW_ROOT=/software
 SA_ROOT=/opt/solidangle
 
+# set these before sourcing the houdini setup environment, otherwise HOUDININ_VERSION is overriden
+
 export HOUDINI_ROOT=$SW_ROOT/houdini/${HOUDINI_VERSION}
+export HTOA_ROOT=${SA_ROOT}/htoa/${HTOA_VERSION}/${HOUDINI_VERSION}
 
 cd ${HOUDINI_ROOT}
 source houdini_setup
 cd - &> /dev/null
 
-export HTOA_ROOT=${SA_ROOT}/htoa/${HTOA_VERSION}/${HOUDINI_VERSION}
+# export ARNOLD_ROOT=${SA_ROOT}/arnold/${ARNOLD_VERSION}
+export PXR_PLUGINPATH_NAME="${HTOA_ROOT}/dso/usd_plugins/"
 
 export MTOA_PATH=/opt/solidangle/mtoa/${MTOA_VERSION}/${MAYA_VERSION}
 export MAYA_PATH=/usr/autodesk/maya${MAYA_VERSION}
@@ -50,6 +62,8 @@ export ALSHADERS_LEGACY_ROOT=${SA_ROOT}/alshaders/${ALSHADERS_LEGACY_VERSION}
 # export PYTHONHOME=$HFS/python
 # export PYTHONPATH=$PYTHONPATH:$PYTHONHOME/lib/python2.7:$PYTHONHOME/lib/python2.7/site-packages:$PYTHONHOME/lib/python2.7/site-packages-ui-forced
 # export LD_LIBRARY_PATH="${MAYA_PATH}/plug-ins/xgen/lib/:${MAYA_PATH}/lib:&"
+export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${HOUDINI_ROOT}/dsolib"
+# export PATH="${ARNOLD_ROOT}/bin:$PATH"
 
 ARNOLD_PLUGIN_PATH="$ARNOLD_PLUGIN_PATH"
 # ARNOLD_PLUGIN_PATH+=":$ALSHADERS_ROOT/bin"
@@ -57,7 +71,15 @@ ARNOLD_PLUGIN_PATH+=":$ALSHADERS_LEGACY_ROOT/bin:"
 ARNOLD_PLUGIN_PATH+=":$MTOA_PATH/procedurals:"
 ARNOLD_PLUGIN_PATH+=":$MTOA_PATH/shaders"
 export ARNOLD_PLUGIN_PATH
-export HOUDINI_PATH="${HOME}/houdini${HOUDINI_MAJOR_RELEASE}.${HOUDINI_MINOR_RELEASE};${HTOA_ROOT};&"
+
+PXR_ROOT=/opt/pixar/
+export RMANTREE=$PXR_ROOT/RenderManProServer-${RMAN_VERSION}
+export RFHTREE=$PXR_ROOT/RenderManForHoudini-${RMAN_VERSION}-py3
+export RMAN_PROCEDURALPATH=$RFHTREE/${HOUDINI_MAJOR_RELEASE}.${HOUDINI_MINOR_RELEASE}/openvdb:&
+
+export DEADLINE_PATH="$SW_ROOT/Thinkbox/Deadline10/bin"
+
+export HOUDINI_PATH="${HTOA_ROOT}:$RFHTREE/${HOUDINI_VERSION}:/software/Thinkbox/houdini/:&"
 
 if [[ -n $XGEN_HTOA ]];then
 	export LD_PRELOAD="${MAYA_PATH}/lib/libclew.so:${MAYA_PATH}/lib/libtbb.so.2:${MAYA_PATH}/lib/libtbbmalloc.so.2:${MAYA_PATH}/lib/libPtex.so:\
@@ -85,7 +107,7 @@ export HOUDINI_EXTERNAL_HELP_BROWSER=xdg-open
 
 # hserver -S 10.150.68.182
 
-echo $houdini_exe $args "$@"
+echo "$houdini_exe $args \"$@\""
 
 exec $houdini_exe $args "$@"
 

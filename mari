@@ -1,0 +1,19 @@
+#!/bin/bash
+
+if [ -z $MARI_VERSION ];then
+	export MARI_VERSION=4.5v1
+fi
+script_name=$(basename $0);
+
+export foundry_LICENSE=4101@license.arnold.autodesk.com
+
+export PIPELINE=/data/pipeline/nuke
+
+export MARI_PATH=${PIPELINE}/common/cryptomatte
+
+export MARI_ROOT=/home/software/mari/${MARI_VERSION}/
+
+export MARI_MIN_MAJ_VERSION=`echo $MARI_VERSION | sed 's/[^0-9.]*\([0-9.]*\).*/\1/'`
+
+exec "${MARI_ROOT}/${script_name}" $@
+

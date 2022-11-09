@@ -3,7 +3,7 @@
 script_name=$(basename $0);
 
 if [ -z $BLENDER_VERSION ];then
-        export BLENDER_VERSION=2.80b
+        export BLENDER_VERSION=2.83.0
 fi
 
 export SOFTWARE=/software

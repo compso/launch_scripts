@@ -1,14 +1,16 @@
 #!/bin/bash
 
+source check_tunnel.sh
+
 if [ -z $NUKE_VERSION ];then
-	export NUKE_VERSION=11.2v4
+	export NUKE_VERSION=13.0v1
 fi
 
-export foundry_LICENSE=4101@license.arnold.autodesk.com
+export foundry_LICENSE=4101@localhost 
 
 export PIPELINE=/data/pipeline/nuke
 
-export NUKE_PATH=${PIPELINE}/common/cryptomatte
+# export NUKE_PATH=${PIPELINE}/common/cryptomatte
 
 export NUKE_ROOT=/home/software/nuke/${NUKE_VERSION}/
 

@@ -1,142 +1,72 @@
-#!/bin/bash
+#!/usr/bin/python
 
-script_name=$(basename $0);
+import os
+import sys
+import subprocess
 
-if [ -z $MAYA_VERSION ];then
-	export MAYA_VERSION=2018
-fi
+from envs import *
 
-if [ -z $MTOA_VERSION ];then
-	export MTOA_VERSION=3.1.2.1
-fi
+envs['script_name'] = __file__.split(os.sep)[-1]
+envs['script_name'] = remove_py(envs['script_name'])
 
-if [ -z $BIFROST_VERSION ];then
-    export BIFROST_VERSION=1.9.0.0
-fi
+MTOA_VERSION_SPLIT = None
+if envs['MTOA_VERSION'][0].isdigit():
+    MTOA_VERSION_SPLIT = [int(i) for i in envs['MTOA_VERSION'].split('.')[:2]]
 
-if [ -z $C4DTOA_VERSION ];then
-    export C4DTOA_VERSION=2.3.0.1
-fi
+DEV = envs['MTOA_VERSION'] == 'dev'
+envs['ARNOLD_PLUGIN_PATH'] = getEnv('ARNOLD_PLUGIN_PATH', '')
 
-if [ -z $ARNOLD_VERSION ];then
-	export ARNOLD_VERSION=5.3.0.0
-fi
+if MTOA_VERSION_SPLIT and not (MTOA_VERSION_SPLIT[0] >= 3
+                               and MTOA_VERSION_SPLIT[1] >= 0):
+    envs['ARNOLD_PLUGIN_PATH'] += ":{ALSHADERS_ROOT}/bin"
+envs['ARNOLD_PLUGIN_PATH'] += ":{ALSHADERS_LEGACY_ROOT}/bin"
+envs['ARNOLD_PLUGIN_PATH'] += ":{YETI_ROOT}/bin/pgYetiArnold.so"
+envs['ARNOLD_PLUGIN_PATH'] += ":{JSNOISE_ROOT}/bin"
+envs['ARNOLD_PLUGIN_PATH'] += ":{MTOA_ROOT}/shaders"
+envs['ARNOLD_PLUGIN_PATH'] += ":{MTOA_ROOT}/procedurals"
+envs['ARNOLD_PLUGIN_PATH'] += ":{MTOA_ROOT}/plugins"
+envs['ARNOLD_PLUGIN_PATH'] += ":{}".format(os.getcwd())
 
-if [ -z $ALSHADERS_VERSION ];then
-	export ALSHADERS_VERSION=2.0.0b2
-fi
+envs['LD_LIBRARY_PATH'] = getEnv('LD_LIBRARY_PATH', '')
+envs['LD_LIBRARY_PATH'] += ":{MAYA_ROOT}/plug-ins/xgen/lib/"
+envs['LD_LIBRARY_PATH'] += ":{MAYA_ROOT}/lib/"
+envs['LD_LIBRARY_PATH'] += ":{MTOA_ROOT}/bin/"
 
-if [ -z $JSNOISE_VERSION ];then
-    export JSNOISE_VERSION=02102017
-fi
+envs['PYTHONHOME'] = ""
 
-if [ -z $ALSHADERS_LEGACY_VERSION ];then
-	export ALSHADERS_LEGACY_VERSION=1.0.0rc20
-fi
 
-if [ -z $ALEMBIC_VERSION ];then
-	export ALEMBIC_VERSION=1.7.4
-fi
+for e, v in envs.items():
+    os.environ[e] = v.format(**envs)
 
-if [ -z $BBALEMBIC_VERSION ];then
-	export BBALEMBIC_VERSION=2.0.0
-fi
+s = '*'*30
 
-if [ -z $YETI_VERSION ];then
-    export YETI_VERSION=2.2.6
-fi
+print_env('ARNOLD_PLUGIN_PATH')
+print '{}\n'.format(s)
+print_env('LD_LIBRARY_PATH')
+print '{}\n'.format(s)
 
-if [ -z $GOLAEM_VERSION ];then
-    export GOLAEM_VERSION=6.4
-fi
+args = sys.argv[1:]
 
-export SW=/software
+for n, arg in enumerate(args):
+    if '.ass' in arg and arg[0] != '/':
+        args[n] = os.path.join(os.getcwd(), arg)
 
-SA_ROOT=$SW/solidangle
+kick_exe = "{ARNOLD_ROOT}/bin/{script_name}".format(**envs)
+cwd = envs['ARNOLD_ROOT']
 
-export MTOA_ROOT=/opt/solidangle/mtoa/${MTOA_VERSION}/${MAYA_VERSION}
-export MAYA_LOCATION=/usr/autodesk/maya${MAYA_VERSION}
-export ARNOLD_ROOT=/opt/solidangle/arnold/${ARNOLD_VERSION}
-export C4DTOA_ROOT=/opt/solidangle/c4dtoa/${C4DTOA_VERSION}
+if envs['script_name'] == 'kick_mtoa':
+    envs['script_name'] = 'kick'
+    kick_exe = "{MTOA_ROOT}/bin/{script_name}".format(**envs)
+    cwd = envs['MTOA_ROOT']
 
-export peregrinel_LICENSE=5053@china
-export YETI_ROOT=${SW}/yeti/${YETI_VERSION}/${MAYA_VERSION}
+if not os.path.exists(kick_exe):
+    print("{} does not exist! Exiting".format(kick_exe))
+    sys.exit(1)
 
-export BB_ALEMBIC_ROOT=${SW}/bb_alembic/${BBALEMBIC_VERSION}
+print '\nRUNNING command: "{}"'.format(' '.join([kick_exe] + args))
+proc = subprocess.Popen([kick_exe] + args, cwd=os.getcwd())
+proc.wait()
 
-export BIFROST_ROOT=/usr/autodesk/bifrost
-export BIFROST_LIB_ROOT=${BIFROST_ROOT}/maya${MAYA_VERSION}/${BIFROST_VERSION}
-
-export GOLAEM_ROOT=/software/golaem/${GOLAEM_VERSION}/${MAYA_VERSION}
-
-export ALSHADERS_ROOT=${SA_ROOT}/alshaders/${ALSHADERS_VERSION}
-export ALSHADERS_LEGACY_ROOT=${SA_ROOT}/alshaders/${ALSHADERS_LEGACY_VERSION}
-
-export JSNOISE_ROOT=${SA_ROOT}/jsnoise/${JSNOISE_VERSION}
-export MANDELBULB_ROOT=/data/Dev/mandlebulb/
-
-export BOOST_ROOT=$SW/boost/1.59.0
-export ILMBASE_ROOT=$SW/openexr/2.2.0
-export OPENEXR_ROOT=$SW/openexr/2.2.0
-export ALEMBIC_ROOT=$SW/alembic/$ALEMBIC_VERSION
-
-LD_LIBRARY_PATH=$LD_LIBRARY_PATH
-LD_LIBRARY_PATH+=:$BIFROST_LIB_ROOT/bifrost/lib
-LD_LIBRARY_PATH+=:$MAYA_LOCATION/plug-ins/xgen/lib/
-LD_LIBRARY_PATH+=:$MAYA_LOCATION/lib
-LD_LIBRARY_PATH+=:$BOOST_ROOT/lib
-LD_LIBRARY_PATH+=:$ILMBASE_ROOT/lib
-LD_LIBRARY_PATH+=:$OPENEXR_ROOT/lib
-LD_LIBRARY_PATH+=:$ALEMBIC_ROOT/lib
-LD_LIBRARY_PATH+=:$GOLAEM_ROOT/bin
-
-export LD_LIBRARY_PATH
-
-# export ARNOLD_PLUGIN_PATH=$MTOA_ROOT:$BIFROST_ROOT/1.5.0/Arnold-5.0.0.0/lib
-ARNOLD_PLUGIN_PATH=$ARNOLD_PLUGIN_PATH:$MTOA_ROOT/shaders
-ARNOLD_PLUGIN_PATH+=:$MANDELBULB_ROOT
-ARNOLD_PLUGIN_PATH+=:$MTOA_ROOT/procedurals
-ARNOLD_PLUGIN_PATH+=:$MTOA_ROOT/plugins
-ARNOLD_PLUGIN_PATH+=:$C4DTOA_ROOT/shaders
-ARNOLD_PLUGIN_PATH+=:$BIFROST_ROOT/1.5.0/Arnold-5.2.0.0/lib
-ARNOLD_PLUGIN_PATH+=:$BB_ALEMBIC_ROOT/arnold/procedurals/
-ARNOLD_PLUGIN_PATH+=:$ALSHADERS_ROOT/bin
-ARNOLD_PLUGIN_PATH+=:$ALSHADERS_LEGACY_ROOT/bin
-ARNOLD_PLUGIN_PATH+=:$JSNOISE_ROOT/bin
-ARNOLD_PLUGIN_PATH+=:$GOLAEM_ROOT/procedurals/glmCrowdArnoldPlugin.so:$GOLAEM_ROOT/shaders
-export ARNOLD_PLUGIN_PATH
-# export solidangle_LICENSE=5053@localhost
-# export ADSKFLEX_LICENSE_FILE=@localhost
-
-echo ===================
-echo ARNOLD_PLUGIN_PATH
-echo -e ${ARNOLD_PLUGIN_PATH//:/\\n}
-echo ===================
-echo LD_LIBRARY_PATH
-echo -e ${LD_LIBRARY_PATH//:/\\n}
-echo ===================
-
-echo $ARNOLD_ROOT
-
-if [ $script_name == "kick" ];then
-    args="-l $YETI_ROOT/bin/pgYetiArnold.so"
-fi
-
-STRACE="";
-if [ $script_name == "kick_strace" ];then
-    STRACE="strace -f -o $HOME/kick_strace.log";
-    script_name="kick";
-fi
-
-if [ $script_name == "kick_mtoa" ];then
-    ARNOLD_ROOT=${MTOA_ROOT}
-    script_name="kick";
-fi
-
-# exec "${ARNOLD_ROOT}/bin/$script_name" -l $MTOA_ROOT/shaders -l $MTOA_ROOT/procedurals -l $BIFROST_ROOT/1.5.0/Arnold-5.0.0.0/lib -l $BB_ALEMBIC_ROOT/arnold/procedurals -l $ALSHADERS_ROOT/bin -l $ALSHADERS_LEGACY_ROOT/bin "$@"
-eval $STRACE "${ARNOLD_ROOT}/bin/$script_name" $args "$@";
-exitstatus="$?"
-echo "Exit status is $exitstatus"
-exit $exitstatus
-# exec "${MTOA_ROOT}/bin/$script_name" $args "$@"
-
+exitstatus = proc.returncode
+print "Kick exited with status: {}".format(exitstatus)
+sys.exit(exitstatus)

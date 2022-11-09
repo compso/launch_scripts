@@ -9,19 +9,23 @@ from envs import *
 envs['script_name'] = __file__.split(os.sep)[-1]
 envs['script_name'] = remove_py(envs['script_name'])
 envs['MAYA_MODULE_PATH'] = getEnv('MAYA_MODULE_PATH', '')
-for path in ('MTOA_ROOT',
+for path in (
+             'MTOA_ROOT',
              'YETI_ROOT',
+             'VRAY_ROOT',
              'RMAN_ROOT',
-             'ORNATRIX_ROOT',
-             'IRAY_ROOT',
-             'GOLAEM_ROOT',  # commented out for compatiblity reasons
-             'WALTER_MAYA_ROOT'
+             'MAYA_USD_ROOT',
+             'BIFROST_ROOT',
+             # 'ORNATRIX_ROOT',
+             # 'IRAY_ROOT',
+             # 'GOLAEM_ROOT',  # commented out for compatiblity reasons
+             # 'WALTER_MAYA_ROOT'
              ):
     envs['MAYA_MODULE_PATH'] += ":{}".format(envs[path])
 
 MTOA_VERSION_SPLIT = None
 if envs['MTOA_VERSION'][0].isdigit():
-    MTOA_VERSION_SPLIT = [int(i) for i in envs['MTOA_VERSION'].split('.')[:3]]
+    MTOA_VERSION_SPLIT = [int(i) for i in envs['MTOA_VERSION'].split('.')[:2]]
 
 DEV = envs['MTOA_VERSION'] == 'dev'
 
@@ -32,49 +36,72 @@ envs['MAYA_SCRIPT_PATH'] = getEnv('MAYA_SCRIPT_PATH', '')
 envs['XBMLANGPATH'] = getEnv('XBMLANGPATH', '')
 envs['PYTHONPATH'] += ":{MTOA_ROOT}/scripts"
 
+# envs['LD_LIBRARY_PATH'] = getEnv('LD_LIBRARY_PATH', '')
+# envs['LD_LIBRARY_PATH'] += ":{MAYA_ROOT}/plug-ins/xgen/lib/"
+# envs['LD_LIBRARY_PATH'] += ":{MAYA_ROOT}/lib/"
+# envs['LD_LIBRARY_PATH'] += ":{VRAY_ROOT}/maya_root/lib/"
+
 if MTOA_VERSION_SPLIT and not (MTOA_VERSION_SPLIT[0] >= 3
                                and MTOA_VERSION_SPLIT[1] >= 0):
     envs['ARNOLD_PLUGIN_PATH'] += ":{ALSHADERS_ROOT}/bin"
-envs['ARNOLD_PLUGIN_PATH'] += ":{ALSHADERS_LEGACY_ROOT}/bin"
-envs['ARNOLD_PLUGIN_PATH'] += ":{YETI_ROOT}/bin/pgYetiArnold.so"
-envs['ARNOLD_PLUGIN_PATH'] += ":{JSNOISE_ROOT}/bin"
+# envs['ARNOLD_PLUGIN_PATH'] += ":{ALSHADERS_LEGACY_ROOT}/bin" # legacy alshaders compiled for arnold 6
+# envs['ARNOLD_PLUGIN_PATH'] += ":{YETI_ROOT}/bin/pgYetiArnold.so"
+# envs['ARNOLD_PLUGIN_PATH'] += ":{JSNOISE_ROOT}/bin"
 # envs['ARNOLD_PLUGIN_PATH'] += ":{WALTER_ROOT}/arnold"
+# envs['ARNOLD_PLUGIN_PATH'] += ":/data/Dev/shaders/shadow_distance"
+envs['ARNOLD_PLUGIN_PATH'] += ":/data/Dev/shaders/simple"
+# envs['ARNOLD_PLUGIN_PATH'] += ":/data/OSL/3dsMax-OSL-Shaders/3ds\ Max\ Shipping\ Shaders"
 
 envs['MTOA_TEMPLATES_PATH'] = getEnv("MTOA_TEMPLATES_PATH", '')
-envs['MTOA_TEMPLATES_PATH'] += ":{ALSHADERS_ROOT}/ae"
-envs['MTOA_TEMPLATES_PATH'] += ":{ALSHADERS_LEGACY_ROOT}/ae"
-envs['MTOA_TEMPLATES_PATH'] += ":{JSNOISE_ROOT}/ae"
+# envs['MTOA_TEMPLATES_PATH'] += ":{ALSHADERS_ROOT}/ae"
+# envs['MTOA_TEMPLATES_PATH'] += ":{ALSHADERS_LEGACY_ROOT}/ae"
+# envs['MTOA_TEMPLATES_PATH'] += ":{JSNOISE_ROOT}/ae"
 
 envs['MAYA_CUSTOM_TEMPLATE_PATH'] = getEnv('MAYA_CUSTOM_TEMPLATE_PATH', '')
-envs['MAYA_CUSTOM_TEMPLATE_PATH'] += ":{ALSHADERS_ROOT}/aexml"
-envs['MAYA_CUSTOM_TEMPLATE_PATH'] += ":{ALSHADERS_LEGACY_ROOT}/aexml"
+
+envs['BIFROST_LIB_CONFIG_FILES'] = getEnv('BIFROST_LIB_CONFIG_FILES', '')
+envs['BIFROST_LIB_CONFIG_FILES'] += "/software/bifrost_packs/rebel_pack/bifrost_lib_config.json"
+# envs['MAYA_CUSTOM_TEMPLATE_PATH'] += ":{ALSHADERS_ROOT}/aexml"
+# envs['MAYA_CUSTOM_TEMPLATE_PATH'] += ":{ALSHADERS_LEGACY_ROOT}/aexml"
+
+# Individule envs
+# envs['MAYA_PLUG_IN_PATH'] += ":{MTOA_ROOT}/plug-ins"
+# envs['MAYA_SCRIPT_PATH'] += ":{MTOA_ROOT}/scripts"
+# envs['MAYA_CUSTOM_TEMPLATE_PATH'] += ":{MTOA_ROOT}/scripts/mtoa/ui/templates"
+# envs['XBMLANGPATH'] += ":{MTOA_ROOT}/icons/%B"
+# envs['PATH'] = "{MTOA_ROOT}/bin"
+# envs['PATH'] += getEnv("PATH", "")
 
 # USD
-envs['MAYA_PLUG_IN_PATH'] += ":{USD_ROOT}/third_party/maya/plugin"
-envs['MAYA_SCRIPT_PATH'] += ":{USD_ROOT}/third_party/maya/lib/usd/usdMaya/resources/"
-envs['PYTHONPATH'] += ":{USD_ROOT}/lib/python/"
-envs['XBMLANGPATH'] += ":{USD_ROOT}/third_party/maya/lib/usd/usdMaya/resources/"
+# envs['MAYA_PLUG_IN_PATH'] += ":{USD_ROOT}/third_party/maya/plugin"
+# envs['MAYA_SCRIPT_PATH'] += ":{USD_ROOT}/third_party/maya/lib/usd/usdMaya/resources/"
+# envs['PYTHONPATH'] += ":{USD_ROOT}/lib/python/"
+# envs['XBMLANGPATH'] += ":{USD_ROOT}/third_party/maya/lib/usd/usdMaya/resources/"
 
 envs['PYTHONHOME'] = envs['MAYA_ROOT']  # for gdb to work
 
 for e, v in envs.items():
     os.environ[e] = v.format(**envs)
 
+for p in sys.path:
+    print p
+
 s = '*'*30
 
-print '{}\nMAYA_MODULE_PATH'.format(s)
-print '\n'.join(envs['MAYA_MODULE_PATH'].format(**envs).split(':'))
-print '{}\nMTOA_TEMPLATES_PATH'.format(s)
-print '\n'.join(envs['MTOA_TEMPLATES_PATH'].format(**envs).split(':'))
-print '{}\nMAYA_PLUG_IN_PATH'.format(s)
-print '\n'.join(envs['MAYA_PLUG_IN_PATH'].format(**envs).split(':'))
-print '{}\nARNOLD_PLUGIN_PATH'.format(s)
-print '\n'.join(envs['ARNOLD_PLUGIN_PATH'].format(**envs).split(':'))
-print '{}\n'.format(s)
+print_env('LD_LIBRARY_PATH')
+print_env('MAYA_MODULE_PATH')
+print_env('MTOA_TEMPLATES_PATH')
+print_env('MAYA_PLUG_IN_PATH')
+print_env('ARNOLD_PLUGIN_PATH')
+print_env('PYTHONPATH')
 
 args = sys.argv[1:]
 maya_exe = "{MAYA_ROOT}/bin/{script_name}".format(**envs)
 print '\nRUNNING command: "{}"'.format(' '.join([maya_exe] + args))
-exitstatus = subprocess.call([maya_exe] + args)
+gdb = ['gdb', '-ex', 'run', '--args', "/bin/bash"]
+proc = subprocess.Popen([ maya_exe] + args)
+proc.wait()
+# exitstatus = subprocess.call([maya_exe] + args)
+exitstatus = proc.returncode
 print "\nMaya exited with status: {}".format(exitstatus)
 sys.exit(exitstatus)

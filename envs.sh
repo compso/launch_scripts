@@ -1,22 +1,22 @@
 
 if [ -z $HOUDINI_VERSION ];then
-    export HOUDINI_VERSION=16.5.571
+    export HOUDINI_VERSION=17.5.327
 fi
 
 if [ -z $HTOA_VERSION ];then
-    export HTOA_VERSION=3.2.1
+    export HTOA_VERSION=5.5.0
 fi
 
 if [ -z $MAYA_VERSION ];then
-    export MAYA_VERSION=2018
+    export MAYA_VERSION=2023
 fi
 
 if [ -z $MTOA_VERSION ];then
-    export MTOA_VERSION=3.1.2.1
+    export MTOA_VERSION=4.2.2
 fi
 
 if [ -z $ARNOLD_VERSION ];then
-    export ARNOLD_VERSION=5.2.2.1
+    export ARNOLD_VERSION=7.1.1.0
 fi
 
 if [ -z $ALSHADERS_VERSION ];then
@@ -28,11 +28,11 @@ if [ -z $ALSHADERS_LEGACY_VERSION ];then
 fi
 
 if [ -z $ALEMBIC_VERSION ];then
-    export ALEMBIC_VERSION=1.7.4
+    export ALEMBIC_VERSION=1.8
 fi
 
 if [ -z $USD_VERSION ];then
-    export USD_VERSION=0.8.3
+    export USD_VERSION=0.19.5
 fi
 
 if [ -z $PYTHON_VERSION ];then

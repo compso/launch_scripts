@@ -1,8 +1,10 @@
 #!/bin/bash
 
-script_name=$(basename $0);
+script_name=$(/usr/bin/basename $0);
 
-source envs.sh
+dir_name=$(/usr/bin/dirname $0);
+
+source $dir_name/envs.sh;
 
 PYTHON_ROOT="${SW}/python/${PYTHON_VERSION}"
 
@@ -30,7 +32,7 @@ USD_PYTHON="${USD_PATH}/lib/python"
 PYTHONPATH="${ARNOLD_PYTHON}"
 PYTHONPATH+=":${ALEMBIC_PYTHON}"
 PYTHONPATH+=":${USD_PYTHON}"
-PYTHONPATH+=":${OPENEXR_ROOT}/lib64/python2.7/site-packages/"
+PYTHONPATH+=":${OPENEXR_ROOT}/lib/python2.7/site-packages/"
 export PYTHONPATH
 
 CMD="$PYTHON_ROOT/bin/$script_name"

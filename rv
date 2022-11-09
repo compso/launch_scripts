@@ -3,8 +3,13 @@
 script_name=$(basename $0);
 
 if [ -z $RV_VERSION ];then
-	export RV_VERSION=7.2.1
+	export RV_VERSION=2022.0.0
 fi
+
+if [ -z $OCIO ];then
+	export OCIO="/data/OCIO/aces/aces_1.0.3/config.ocio"
+fi
+
 
 RV_ROOT=/software/rv/$RV_VERSION
 

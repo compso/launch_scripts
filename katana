@@ -1,11 +1,19 @@
 #!/bin/bash
 
+script_name=$(basename $0);
+
+source check_tunnel.sh
+
 if [ -z $KATANA_VERSION ];then
-	export KATANA_VERSION=3.0v1
+	export KATANA_VERSION=4.0v4
 fi
 
 if [ -z $KTOA_VERSION ];then
-	export KTOA_VERSION=2.3.0.1
+	export KTOA_VERSION=3.2.1.1
+fi
+
+if [ -z $RENDERMAN_VERSION ];then
+    export RENDERMAN_VERSION=24.2
 fi
 
 if [ -z $MAYA_VERSION ];then
@@ -13,7 +21,7 @@ if [ -z $MAYA_VERSION ];then
 fi
 
 if [ -z $MTOA_VERSION ];then
-	export MTOA_VERSION=3.2.0.1
+	export MTOA_VERSION=4.1.0
 fi
 
 if [ -z $ALSHADERS_VERSION ];then
@@ -32,8 +40,8 @@ if [ -z $GOLAEM_VERSION ];then
     export GOLAEM_VERSION=6.4
 fi
 
-export foundry_LICENSE=4101@license.arnold.autodesk.com
-export solidangle_LICENSE=5053@localhost
+export foundry_LICENSE=4101@localhost
+export solidangle_LICENSE=5060@localhost
 
 SW=/home/software
 SA_ROOT=$SW/solidangle
@@ -48,16 +56,32 @@ export KATANA_MIN_MAJ_VERSION=`echo $KATANA_VERSION | sed 's/[^0-9.]*\([0-9.]*\)
 
 export KTOA_ROOT=$SA_ROOT/ktoa/${KTOA_VERSION}/${KATANA_MIN_MAJ_VERSION}
 
-KATANA_RESOURCES=$KTOA_ROOT
+export RMAN_MAJ_VERSION=`echo $RENDERMAN_VERSION | sed -r 's/^[^0-9]*([0-9]+).*/\1/'`
+
+export RMANTREE="/opt/pixar/RenderManProServer-${RENDERMAN_VERSION}/"
+export RMK_ROOT="/opt/pixar/RenderManForKatana-${RENDERMAN_VERSION}/plugins/katana${KATANA_MIN_MAJ_VERSION}"
+
+KATANA_RESOURCES="${KATANA_RESOURCES}:${KTOA_ROOT}"
+KATANA_RESOURCES+=":${KTOA_ROOT}/USD/KatanaUsdPlugins/plugin:${KTOA_ROOT}/USD/KatanaUsdArnold"
 # KATANA_RESOURCES+=":${GOLAEM_INSTALL_PATH}/procedurals/katana"
+KATANA_RESOURCES+=":${RMK_ROOT}"
+# KATANA_RESOURCES+=":${KATANA_ROOT}/plugins/Resources/Usd/plugin"
+KATANA_POST_PYTHONPATH+=":${KATANA_RESOURCES}"
 export KATANA_RESOURCES
+
+FNPXR_PLUGINPATH=${KTOA_ROOT}/USD/Viewport/:${FNPXR_PLUGINPATH}
+export FNPXR_PLUGINPATH
+
+PYTHONPATH=${KTOA_ROOT}/USD/KatanaUsdPlugins/lib/python:${PYTHONPATH}
+export PYTHONPATH
 
 export peregrinel_LICENSE=5053@china
 export YETI_ROOT=${SW}/yeti/${YETI_VERSION}/${MAYA_VERSION}
 
-export PATH=$KATANA_ROOT:${KTOA_ROOT}/bin:$YETI_ROOT/bin:$PATH
+export PATH=${KTOA_ROOT}/bin:$YETI_ROOT/bin:$KATANA_ROOT:$PATH
 
 export DEFAULT_RENDERER=arnold
+export USD_KATANA_ALLOW_CUSTOM_MATERIAL_SCOPES=true
 
 
 #---------------------
@@ -70,24 +94,37 @@ export MAYA_PATH=/usr/autodesk/maya${MAYA_VERSION}
 export XGEN_LOCATION=${MAYA_PATH}/plug-ins/xgen
 export BIFROST_ROOT=/usr/autodesk/bifrost
 
-LD_LIBRARY_PATH=$LD_LIBRARY_PATH
-# LD_LIBRARY_PATH+=:${GOLAEM_INSTALL_PATH}/lib
-LD_LIBRARY_PATH+=":$BIFROST_ROOT/maya${MAYA_VERSION}/lib:$XGEN_LOCATION/lib/:$MAYA_PATH/lib"
+LD_LIBRARY_PATH="${LD_LIBRARY_PATH}"
+LD_LIBRARY_PATH+=":${KTOA_ROOT}/USD/KatanaUsdPlugins/lib:${KTOA_ROOT}/USD/KatanaUsdPlugins/plugin/Libs"
+LD_LIBRARY_PATH+=":$KATANA_ROOT/plugins/Resources/Usd/lib"
+LD_LIBRARY_PATH+=":$KTOA_ROOT/bin:$BIFROST_ROOT/maya${MAYA_VERSION}/lib:$XGEN_LOCATION/lib/:$MAYA_PATH/lib:$MTOA_PATH/bin"
+LD_LIBRARY_PATH+=":${LD_LIBRARY_PATH}"
 export LD_LIBRARY_PATH
 
 ARNOLD_PLUGIN_PATH="$ARNOLD_PLUGIN_PATH"
-ARNOLD_PLUGIN_PATH+=":$MANDELBULB_ROOT"
-ARNOLD_PLUGIN_PATH+=":$ALSHADERS_ROOT/bin"
-ARNOLD_PLUGIN_PATH+=":$ALSHADERS_LEGACY_ROOT/bin"
-ARNOLD_PLUGIN_PATH+=":$YETI_ROOT/bin/pgYetiArnold.so"
-ARNOLD_PLUGIN_PATH+=":$MTOA_PATH/shaders"
-ARNOLD_PLUGIN_PATH+=":$MTOA_PATH/procedurals"
+# ARNOLD_PLUGIN_PATH+=":$MANDELBULB_ROOT"
+# ARNOLD_PLUGIN_PATH+=":$ALSHADERS_ROOT/bin"
+# ARNOLD_PLUGIN_PATH+=":$ALSHADERS_LEGACY_ROOT/bin"
+# ARNOLD_PLUGIN_PATH+=":$YETI_ROOT/bin/pgYetiArnold.so"
+# ARNOLD_PLUGIN_PATH+=":$MTOA_PATH/shaders"
+# ARNOLD_PLUGIN_PATH+=":$MTOA_PATH/procedurals"
 # ARNOLD_PLUGIN_PATH+=":${GOLAEM_INSTALL_PATH}/procedurals:${GOLAEM_INSTALL_PATH}/shaders"
 export ARNOLD_PLUGIN_PATH
 #--------------------
 
+echo ===================
+echo LD_LIBRARY_PATH
+echo -e ${LD_LIBRARY_PATH//:/\\n}
+echo PATH
+echo -e ${PATH//:/\\n}
+echo ===================
+
+
+if [ $script_name == "katana" ];then
+    script_name="katanaBin"
+fi
 
 export "KATANA_TAGLINE=With KtoA ${KTOA_VERSION}"
 
-exec "${KATANA_ROOT}/katana" $@
+exec "${KATANA_ROOT}/bin/$script_name" "$@"
 
